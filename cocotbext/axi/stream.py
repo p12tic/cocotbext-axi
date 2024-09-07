@@ -117,8 +117,12 @@ class StreamBase(Reset):
 
         for sig in self._signals+self._optional_signals:
             if hasattr(self.bus, sig):
-                if sig in self._signal_widths:
-                    assert len(getattr(self.bus, sig)) == self._signal_widths[sig]
+                expected_width = self._signal_widths.get(sig, None)
+                if isinstance(expected_width, int):
+                    assert len(getattr(self.bus, sig)) == expected_width
+                if isinstance(expected_width, list):
+                    assert len(getattr(self.bus, sig)) in expected_width
+
                 if self._init_x and sig not in (self._valid_signal, self._ready_signal):
                     v = getattr(self.bus, sig).value
                     v = apply_binstr(v, 'x'*len(v))
